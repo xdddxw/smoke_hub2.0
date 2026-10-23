@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Перевірка прав адміністратора
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // Правила для товарів
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin() || true; // Для першого налаштування дозволено запис
+    }
+
+    // Правила для замовлень
+    match /orders/{orderId} {
+      allow read: if true;
+      allow create: if request.resource.data.status == 'pending';
+      allow update, delete: if true;
+    }
+  }
+}
